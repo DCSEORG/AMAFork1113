@@ -1,0 +1,130 @@
+@page
+@model ChatModel
+@{
+    ViewData["Title"] = "AI Assistant";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">AI Expense Assistant</h1>
+        <a asp-page="/Index" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+
+    @if (!Model.IsChatEnabled)
+    {
+        <div class="alert alert-warning">
+            <strong>Chat UI is not enabled.</strong> To enable the AI Assistant, set <code>INCLUDE_CHAT_UI=true</code> 
+            in the <code>deploy.sh</code> file and redeploy the application with the GenAI resources.
+        </div>
+    }
+    else
+    {
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-message assistant">
+                    <div class="chat-message-content">
+                        👋 Hello! I'm your AI Expense Assistant. I can help you understand your expenses, 
+                        answer questions about the system, and provide guidance on managing your expenses. 
+                        How can I help you today?
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <input type="text" 
+                       id="chatInput" 
+                       class="form-control chat-input" 
+                       placeholder="Ask me anything about your expenses..." 
+                       onkeypress="if(event.key === 'Enter') sendMessage()" />
+                <button onclick="sendMessage()" class="btn btn-primary">Send</button>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        let chatHistory = [];
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Add user message to UI
+            addMessageToUI('user', message);
+            
+            // Clear input
+            input.value = '';
+
+            // Show loading indicator
+            const loadingId = addMessageToUI('assistant', '...');
+
+            try {
+                // Send to API
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        history: chatHistory
+                    })
+                });
+
+                const data = await response.json();
+
+                // Remove loading indicator
+                document.getElementById(loadingId)?.remove();
+
+                if (data.success) {
+                    addMessageToUI('assistant', data.response);
+                    
+                    // Update history
+                    chatHistory.push({ role: 'user', content: message });
+                    chatHistory.push({ role: 'assistant', content: data.response });
+                    
+                    // Keep only last 10 messages in history
+                    if (chatHistory.length > 20) {
+                        chatHistory = chatHistory.slice(-20);
+                    }
+                } else {
+                    addMessageToUI('assistant', '❌ ' + (data.error || 'Failed to get response'));
+                }
+            } catch (error) {
+                // Remove loading indicator
+                document.getElementById(loadingId)?.remove();
+                addMessageToUI('assistant', '❌ Error: Failed to connect to chat service');
+                console.error('Chat error:', error);
+            }
+        }
+
+        function addMessageToUI(role, content) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageId = 'msg-' + Date.now();
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.id = messageId;
+            messageDiv.className = `chat-message ${role}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'chat-message-content';
+            contentDiv.textContent = content;
+            
+            messageDiv.appendChild(contentDiv);
+            messagesContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            return messageId;
+        }
+
+        // Focus on input when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('chatInput')?.focus();
+        });
+    </script>
+}

@@ -1,0 +1,82 @@
+@page
+@model ApprovalsModel
+@{
+    ViewData["Title"] = "Approve Expenses";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">Pending Expense Approvals</h1>
+        <a asp-page="/Index" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <div class="alert alert-success">@Model.Message</div>
+    }
+
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Employee</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                    <th>Submitted</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var expense in Model.PendingExpenses)
+                {
+                    <tr>
+                        <td>@expense.ExpenseId</td>
+                        <td>@expense.ExpenseDate.ToString("dd MMM yyyy")</td>
+                        <td>@expense.UserName</td>
+                        <td>@expense.CategoryName</td>
+                        <td>£@expense.Amount.ToString("N2")</td>
+                        <td>@(expense.Description ?? "-")</td>
+                        <td>@(expense.SubmittedAt?.ToString("dd MMM yyyy HH:mm") ?? "-")</td>
+                        <td>
+                            <div class="action-buttons">
+                                @if (Model.Managers.Any())
+                                {
+                                    var manager = Model.Managers.First();
+                                    <form method="post" asp-page-handler="Approve" style="display: inline;">
+                                        <input type="hidden" name="expenseId" value="@expense.ExpenseId" />
+                                        <input type="hidden" name="managerId" value="@manager.UserId" />
+                                        <button type="submit" class="btn btn-success btn-sm">
+                                            ✓ Approve
+                                        </button>
+                                    </form>
+                                    <form method="post" asp-page-handler="Reject" style="display: inline;">
+                                        <input type="hidden" name="expenseId" value="@expense.ExpenseId" />
+                                        <input type="hidden" name="managerId" value="@manager.UserId" />
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            ✗ Reject
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span style="color: var(--text-secondary);">No managers available</span>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.PendingExpenses.Any())
+                {
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: var(--text-secondary);">
+                            No pending expenses to approve. All caught up! 🎉
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

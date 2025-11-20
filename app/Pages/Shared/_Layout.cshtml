@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Expense Management</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <a class="nav-brand" asp-page="/Index">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                    Expense Management
+                </a>
+                <ul class="nav-menu">
+                    <li><a asp-page="/Index" class="nav-link">Dashboard</a></li>
+                    <li><a asp-page="/Expenses/List" class="nav-link">Expenses</a></li>
+                    <li><a asp-page="/Expenses/Create" class="nav-link">New Expense</a></li>
+                    <li><a asp-page="/Approvals" class="nav-link">Approvals</a></li>
+                    @if (Context.RequestServices.GetService<ExpenseManagement.Services.IChatService>()?.IsEnabled() == true)
+                    {
+                        <li><a asp-page="/Chat" class="nav-link">AI Assistant</a></li>
+                    }
+                    <li><a href="/api-docs" class="nav-link">API Docs</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        @if (!string.IsNullOrEmpty(ViewData["DatabaseError"]?.ToString()))
+        {
+            <div class="alert alert-warning">
+                ⚠️ Database Connection Issue: @ViewData["DatabaseError"] - Displaying sample data
+            </div>
+        }
+        @RenderBody()
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 Expense Management System. Modernized with Azure.</p>
+        </div>
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

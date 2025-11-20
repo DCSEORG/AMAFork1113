@@ -1,0 +1,71 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Publish output
+publish/
+
+# Visual Studio cache/options
+.vs/
+.vscode/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build artifacts
+*.dll
+*.exe
+*.pdb
+*.cache
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+
+# Azure Functions
+local.settings.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# macOS
+.DS_Store
+
+# Rider
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
+/tmp/
+
+# Node modules (if any frontend tools)
+node_modules/
+
+# Keep app.zip in repo as per requirements
+!app.zip

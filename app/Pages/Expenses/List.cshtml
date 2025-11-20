@@ -1,0 +1,89 @@
+@page
+@model ListModel
+@{
+    ViewData["Title"] = "All Expenses";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">All Expenses</h1>
+        <a asp-page="/Expenses/Create" class="btn btn-primary">+ New Expense</a>
+    </div>
+
+    <form method="get" class="form-group" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+        <div style="flex: 1;">
+            <label class="form-label">Filter by Employee</label>
+            <select name="FilterUserId" class="form-control" onchange="this.form.submit()">
+                <option value="">All Employees</option>
+                @foreach (var user in Model.Users)
+                {
+                    <option value="@user.UserId" selected="@(Model.FilterUserId == user.UserId)">
+                        @user.UserName
+                    </option>
+                }
+            </select>
+        </div>
+        <div style="flex: 1;">
+            <label class="form-label">Filter by Status</label>
+            <select name="FilterStatusId" class="form-control" onchange="this.form.submit()">
+                <option value="">All Statuses</option>
+                @foreach (var status in Model.Statuses)
+                {
+                    <option value="@status.StatusId" selected="@(Model.FilterStatusId == status.StatusId)">
+                        @status.StatusName
+                    </option>
+                }
+            </select>
+        </div>
+        @if (Model.FilterUserId.HasValue || Model.FilterStatusId.HasValue)
+        {
+            <div style="display: flex; align-items: flex-end;">
+                <a asp-page="/Expenses/List" class="btn btn-secondary">Clear Filters</a>
+            </div>
+        }
+    </form>
+
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Employee</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Description</th>
+                    <th>Submitted</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var expense in Model.Expenses)
+                {
+                    <tr>
+                        <td>@expense.ExpenseId</td>
+                        <td>@expense.ExpenseDate.ToString("dd MMM yyyy")</td>
+                        <td>@expense.UserName</td>
+                        <td>@expense.CategoryName</td>
+                        <td>£@expense.Amount.ToString("N2")</td>
+                        <td>
+                            <span class="badge badge-@expense.StatusName.ToLower()">
+                                @expense.StatusName
+                            </span>
+                        </td>
+                        <td>@(expense.Description ?? "-")</td>
+                        <td>@(expense.SubmittedAt?.ToString("dd MMM yyyy") ?? "-")</td>
+                    </tr>
+                }
+                @if (!Model.Expenses.Any())
+                {
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: var(--text-secondary);">
+                            No expenses found matching the selected filters.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
