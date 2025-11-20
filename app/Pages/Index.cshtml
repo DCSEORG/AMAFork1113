@@ -1,0 +1,78 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">Expense Dashboard</h1>
+        <a asp-page="/Expenses/Create" class="btn btn-primary">+ New Expense</a>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Expenses</div>
+            <div class="stat-value">@Model.TotalExpenses</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Pending Approvals</div>
+            <div class="stat-value">@Model.PendingApprovals</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Approved Amount</div>
+            <div class="stat-value">£@Model.TotalAmount.ToString("N2")</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Approved Count</div>
+            <div class="stat-value">@Model.ApprovedCount</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Recent Expenses</h2>
+        <a asp-page="/Expenses/List" class="btn btn-secondary">View All</a>
+    </div>
+
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Employee</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var expense in Model.RecentExpenses)
+                {
+                    <tr>
+                        <td>@expense.ExpenseDate.ToString("dd MMM yyyy")</td>
+                        <td>@expense.UserName</td>
+                        <td>@expense.CategoryName</td>
+                        <td>£@expense.Amount.ToString("N2")</td>
+                        <td>
+                            <span class="badge badge-@expense.StatusName.ToLower()">
+                                @expense.StatusName
+                            </span>
+                        </td>
+                        <td>@(expense.Description ?? "-")</td>
+                    </tr>
+                }
+                @if (!Model.RecentExpenses.Any())
+                {
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-secondary);">
+                            No expenses found. Create your first expense to get started!
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

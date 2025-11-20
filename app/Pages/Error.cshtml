@@ -1,0 +1,20 @@
+@page
+@model ErrorModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="card">
+    <h1 class="card-title" style="color: var(--danger-color);">Error</h1>
+    <h2>An error occurred while processing your request.</h2>
+
+    @if (Model.ShowRequestId)
+    {
+        <p>
+            <strong>Request ID:</strong> <code>@Model.RequestId</code>
+        </p>
+    }
+
+    <p>Please try again or contact support if the problem persists.</p>
+    <a asp-page="/Index" class="btn btn-primary">Return to Dashboard</a>
+</div>
